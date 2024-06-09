@@ -125,10 +125,16 @@ B.place(x=250,y=330)
 
 ###   TAB2    #######################################################################
 header = ['TSID','ชื่อ','แผนก','อุปกรณ์','อาการเสีย','หมายเลข','เบอร์โทรผู้แจ้ง']
-headerw = [100,100,100,100,200,100,100]
+headerw = [100,100,100,100,150,100,150]
 
-mtworkorderlist = ttk.Treeview(T2,columns=header,show='headings',height=10)
+mtworkorderlist = ttk.Treeview(T2,columns=header,show='headings',height=20)
 mtworkorderlist.pack()
+
+
+### ปรับ Style ตราง
+style = ttk.Style()
+style.configure('Treeview.Heading',padding=(5,5),font=('Angsana New',16,'bold'))
+style.configure('Treeview',rowheight=25,font=('Angsana New',14))
 
 for h,w in zip(header,headerw):
     # h='TSID' , W=50 ----> h='ชื่อ' w=100
@@ -145,6 +151,112 @@ def update_table():
         d = list(d) #แปลง Tuper เป็น list
         del d[0] #ลบ ID จาก database ออก
         mtworkorderlist.insert('','end',values=d)
+
+### หน้าสำหรับแก้ไขข้อความ
+
+def EditPage_mtworkorder(event=None):
+    select = mtworkorderlist.selection()
+    output = mtworkorderlist.item(select)
+    op = output['values']
+
+    tsid = op[0]
+    t_name = op[1]
+    t_Departmant = op[2]
+    t_machine = op[3]
+    t_problem = op[4]
+    t_number = op[5]
+    t_Phone = '0{}'.format(op[6])
+
+
+    GUI2 = Toplevel()
+    GUI2.title('หน้าแก้ไขข้อมูลใบแจ้งซ่อม')
+    GUI2.geometry('500x500')
+
+    #Widget
+    # หัวเรื่อง ใบแจ้งซ่อม
+    L = ttk.Label(GUI2,text='ใบแจ้งซ่อม',font=font1)
+    L.place(x=150,y=10)
+
+    # ชื่อผู้แจ้ง
+    L = ttk.Label(GUI2,text='ชื่อผู้แจ้ง :',font=font2)
+    L.place(x=10,y=50)
+    V_name2 = StringVar()  # StringVar() ตัวแปรพิเศษใช้กับ GUI2
+    V_name2.set(t_name)
+    E1 = ttk.Entry(GUI2,textvariable=V_name2,font=font3)
+    E1.place(x=150,y=50)
+
+    # แผนก
+    L = ttk.Label(GUI2,text='แผนก :',font=font2)
+    L.place(x=10,y=90)
+    V_Departmant2 = StringVar()
+    V_Departmant2.set(t_Departmant)
+    E2 = ttk.Entry(GUI2,textvariable=V_Departmant2,font=font3)
+    E2.place(x=150,y=90)
+
+
+    # อุปกรณ์/เครื่อง
+    L = ttk.Label(GUI2,text='อุปกรณ์/เครื่อง :',font=font2)
+    L.place(x=10,y=130)
+    V_Machine2 = StringVar()
+    V_Machine2.set(t_machine)
+    E3 = ttk.Entry(GUI2,textvariable=V_Machine2,font=font3)
+    E3.place(x=150,y=130)
+
+    # อาการเสีย
+    L = ttk.Label(GUI2,text='อาการเสีย :',font=font2)
+    L.place(x=10,y=170)
+    V_Problem2 = StringVar()
+    V_Problem2.set(t_problem)
+    E4 = ttk.Entry(GUI2,textvariable=V_Problem2,font=font3)
+    E4.place(x=150,y=170)
+
+    # รหัสเครื่อง/อุปกรณ์
+    L = ttk.Label(GUI2,text='รหัสเครื่อง/อุปกรณ์ :',font=font2)
+    L.place(x=10,y=210)
+    V_Number2 = StringVar()
+    V_Number2.set(t_number)
+    E5 = ttk.Entry(GUI2,textvariable=V_Number2,font=font3)
+    E5.place(x=150,y=210)
+
+    # เบอร์โทร
+    L = ttk.Label(GUI2,text='เบอร์โทร :',font=font2)
+    L.place(x=10,y=250)
+    V_Call2 = StringVar()
+    V_Call2.set(t_Phone)
+    E6 = ttk.Entry(GUI2,textvariable=V_Call2,font=font3)
+    E6.place(x=150,y=250)
+
+
+    def edit_save():
+        name = V_name2.get()
+        Departmant = V_Departmant2.get()
+        machine = V_Machine2.get()
+        problem = V_Problem2.get()
+        number = V_Number2.get()
+        Phone = V_Call2.get()
+
+        update_mtworkorder(tsid,'name',name)
+        update_mtworkorder(tsid,'Departmant',Departmant)
+        update_mtworkorder(tsid,'machine',machine)
+        update_mtworkorder(tsid,'problem',problem)
+        update_mtworkorder(tsid,'number',number)
+        update_mtworkorder(tsid,'Phone',Phone)
+
+        update_table()
+        GUI2.destroy()
+
+    B = ttk.Button(GUI2,text='บันทึกใบแจ้งซ่อม',command=edit_save)
+    B.place(x=250,y=330)
+
+
+
+
+    GUI2.mainloop()
+mtworkorderlist.bind('<Double-1>',EditPage_mtworkorder)
+
+
+
+
 
 ### Startup
 update_table()
